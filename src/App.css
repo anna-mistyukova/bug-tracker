@@ -31,3 +31,15 @@
     transform: rotate(360deg);
   }
 }
+
+.bold {
+  font-weight: bold;
+}
+
+.lighter {
+  color: rgba(0,0,0,.58)
+}
+
+.smaller {
+  font-size: 0.9em;
+}
