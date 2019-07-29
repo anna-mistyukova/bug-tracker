@@ -4,6 +4,7 @@ import Login from './routes/Login'
 import NotFound from './routes/NotFound'
 import Home from './routes/Home'
 import Bug from './routes/Bug'
+import NewBug from './routes/NewBug'
 import { Navbar, Nav, Button } from 'react-bootstrap'
 import { LinkContainer } from 'react-router-bootstrap'
 import './App.css'
@@ -21,7 +22,7 @@ const Navigation = () => (
     <Navbar.Toggle aria-controls='basic-navbar-nav' />
     <Navbar.Collapse id='basic-navbar-nav'>
       <Nav className='mr-auto'>
-        <LinkContainer to='/home'>
+        <LinkContainer to='/'>
           <Nav.Link>
             <span><i className='fas fa-home' /></span>
             <span>Панель ошибок</span>
@@ -59,6 +60,7 @@ const Main = () => (
       <Route path='/login' component={Login} />
       <PrivateRoute exact path='/' component={Home} />
       <PrivateRoute path='/bugs/:bugId' component={Bug} />
+      <PrivateRoute path='/bug/' component={NewBug} />
       <PrivateRoute component={NotFound} />
     </Switch>
   </main>
