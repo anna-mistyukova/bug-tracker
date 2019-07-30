@@ -16,15 +16,13 @@ const App = () => (
 )
 
 const Main = () => (
-  <main>
-    <Switch>
-      <Route path='/login' component={Login} />
-      <Route exact path='/' component={Home} />
-      <Route path='/bugs/:bugId' component={Bug} />
-      <Route path='/bug/' component={NewBug} />
-      <Route component={NotFound} />
-    </Switch>
-  </main>
+  <Switch>
+    <Route path='/login' component={Login} />
+    <Route exact path='/' component={Home} />
+    <Route path='/bugs/:bugId' component={Bug} />
+    <Route path='/bug/' component={NewBug} />
+    <Route component={NotFound} />
+  </Switch>
 )
 
 export default withAuthentication(App)
