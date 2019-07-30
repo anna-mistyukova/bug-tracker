@@ -1,82 +1,104 @@
-import React, { Component } from 'react'
-import { Container, Table, Row, Col, Card, Button } from 'react-bootstrap'
+import React, { Component, Fragment } from 'react'
+import Loader from '../../components/Loader'
+import BugForm from './BugForm'
+import BugHistory from './BugHistory'
+import { Container, Row, Col, Card, Alert, Badge } from 'react-bootstrap'
+import { withAuthorization } from '../../components/Session'
+
+import './component_style.sass'
 
 class Bug extends Component {
+  state = {
+    bug: null,
+    loading: false,
+    error: null
+  }
+
+  componentDidMount () {
+    const { firebase } = this.props
+    const { bugId } = this.props.match.params
+
+    this.setState({ loading: true })
+
+    firebase.bug(bugId).on('value', snapshot => {
+      const bug = snapshot.val()
+
+      if (bug) {
+        this.setState({
+          loading: false,
+          bug
+        })
+      } else {
+        this.setState({
+          loading: false,
+          error: 'Ошибка не найдена'
+        })
+      }
+    })
+  }
+
   render () {
-    const id = 12345
-    const creator = { id: 123, name: 'John' }
-    const shortDescription = 'Что-то пошло не так'
-    const fullDescription = 'В загодочном лесу на берегу берега березовой страны пропали все березы.'
-    const date = '12/07/19'
-    const comment = ''
+    const { bug, loading, error } = this.state
+    const content = loading
+      ? <Col><Loader /></Col>
+      : error
+        ? <Col><Alert variant='danger'>{ error }</Alert></Col>
+        : <BugContent bug={bug} />
 
     return (
       <Container>
         <Row>
-          <Col>
-            <Card.Body>
-              <Card.Title>
-               <h2 className='bold'>Ошибка</h2>
-                <h2 className='bold'>{ `#${id}` }</h2>
-              </Card.Title>
-              <Card.Subtitle className='text-muted'>
-              <div>
-                <span>Дата создания</span>
-                <span>{ date }</span>
-              </div>
-              <div>
-                <span>Автор</span>
-                <span>{ creator.name }</span>
-              </div>
-              </Card.Subtitle>
-            <div className='bold'>Статус</div>
-            <div>Кнопка перевода в какой-либо статус</div>
-            <div className='bold'>Комментарий</div>
-            <div className='lighter smaller'>Пожалуйста, укажите объяснение к изменению статуса</div>
-            <div><input type='textarea' value={comment} /></div>
-            <div className='bold'>Приоритет</div>
-            <div>Приориете</div>
-            <div className='bold'>Серьезность</div>
-            <div>Серьезность</div>
-            <div className='bold'>Краткое описание</div>
-            <div>{shortDescription}</div>
-            <div className='bold'>Полное описание</div>
-            <div>{fullDescription}</div>
-            <Button variant='light'>Отмена</Button>
-            <Button variant='primary'>Сохранить</Button>
-        </Card.Body>
-          </Col>
-          <Col>
-            <h4>История изменений</h4>
-            <Table striped bordered hover>
-              <thead>
-                <tr>
-                  <th>Дата</th>
-                  <th>Действие</th>
-                  <th>Комментарий</th>
-                  <th>Пользователь</th>
-                </tr>
-              </thead>
-          <tbody>
-            <tr>
-              <td>13/07/19</td>
-              <td>Закрытие</td>
-              <td>-</td>
-              <td>John</td>
-            </tr>
-            <tr>
-              <td>12/07/19</td>
-              <td>Решение</td>
-              <td>-</td>
-              <td>Michael</td>
-            </tr>
-          </tbody>
-        </Table>
-          </Col>
+          { content }
         </Row>
       </Container>
     )
   }
 }
 
-export default Bug
+class BugCard extends Component {
+  render () {
+    const { bug } = this.props
+    const date = new Date(bug.date).toLocaleDateString()
+
+    return (
+      <Card>
+        <Card.Body>
+          <Card.Title>
+            <h2 className='bold'>{ `Ошибка #${bug.id}` }</h2>
+          </Card.Title>
+          <Card.Subtitle className='text-muted'>
+            <div className='sub-block'>
+              <Badge pill variant='info'>
+                Дата создания
+              </Badge>
+              <span className='smaller'>{ date }</span>
+            </div>
+
+            <div className='sub-block'>
+              <Badge pill variant='info'>
+                Автор
+              </Badge>
+              <span className='smaller'>{ bug.user.name }</span>
+            </div>
+          </Card.Subtitle>
+          <BugForm bugProps={bug} />
+        </Card.Body>
+      </Card>
+    )
+  }
+}
+
+const BugContent = ({ bug }) => (
+  bug ? <Fragment>
+    <Col>
+      <BugCard bug={bug} />
+    </Col>
+    <Col>
+      <BugHistory history={bug.history} />
+    </Col>
+  </Fragment> : null
+)
+
+const condition = authUser => !!authUser
+
+export default withAuthorization(condition)(Bug)

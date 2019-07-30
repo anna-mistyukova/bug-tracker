@@ -1,12 +1,17 @@
+import 'react-app-polyfill/ie9'
+import 'react-app-polyfill/stable'
 import React from 'react'
-import { BrowserRouter as Router } from 'react-router-dom'
-
 import ReactDOM from 'react-dom'
-import './index.css'
+import { BrowserRouter as Router } from 'react-router-dom'
+import Firebase, { FirebaseContext } from './components/Firebase'
+
 import App from './App'
+import './index.sass'
 
 ReactDOM.render((
-  <Router>
-    <App />
-  </Router>
+  <FirebaseContext.Provider value={new Firebase()}>
+    <Router>
+      <App />
+    </Router>
+  </FirebaseContext.Provider>
 ), document.getElementById('root'))

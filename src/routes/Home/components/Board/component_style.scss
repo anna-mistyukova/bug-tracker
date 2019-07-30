@@ -1,0 +1,32 @@
+.card {
+  margin: 6px 0;
+
+  &:first-child {
+    margin-top: 0;
+  }
+
+  &:last-child {
+    margin-bottom: 0
+  }
+
+  > .card-body {
+    padding: 0.6rem 0.8rem;
+
+    > .card-title.h5 {
+      font-size: 1rem
+    }
+  }
+}
+
+.group {
+  padding: 10px;
+  border: 1px solid rgba(0, 0, 0, 0.125);
+  background-color: #f0f0f0;
+  border-radius: .25rem;
+  max-width: 360px;
+  margin-bottom: 15px;
+
+  > .group__header {
+    padding-bottom: 10px;
+  }
+}

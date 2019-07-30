@@ -1,79 +1,66 @@
-import React from 'react'
-import Kanban from './components/Kanban'
+import React, { Component } from 'react'
+import { withAuthorization } from '../../components/Session'
+import Board from './components/Board'
 import { Container } from 'react-bootstrap'
+import Bug from '../../entities/Bug'
+import Loader from '../../components/Loader'
 
-const TEST_KANBAN = [
-  {
-    id: 1,
-    title: 'Новые',
-    cards: [
-      {
-        id: 123456,
-        title: 'Не работает то',
-        description: 'Не работает сё'
-      },
-      {
-        id: 123457,
-        title: 'Не работает то',
-        description: 'Не работает сё'
-      }
-    ]
-  },
-  {
-    id: 2,
-    title: 'Открытые',
-    cards: [
-      {
-        id: 123458,
-        title: 'Не работает то',
-        description: 'Не работает сё'
-      },
-      {
-        id: 123459,
-        title: 'Не работает то',
-        description: 'Не работает сё'
-      }
-    ]
-  },
-  {
-    id: 3,
-    title: 'Решенные',
-    cards: [
-      {
-        id: 123460,
-        title: 'Не работает то',
-        description: 'Не работает сё'
-      },
-      {
-        id: 123461,
-        title: 'Не работает то',
-        description: 'Не работает сё'
-      }
-    ]
-  },
-  {
-    id: 4,
-    title: 'Закрытые',
-    cards: [
-      {
-        id: 123462,
-        title: 'Не работает то',
-        description: 'Не работает сё'
-      },
-      {
-        id: 123463,
-        title: 'Не работает то',
-        description: 'Не работает сё'
-      }
-    ]
+class Home extends Component {
+  state = {
+    loading: false,
+    bugGroups: {}
   }
-]
 
-const Home = () => (
-  <Container>
-    <h2>Ошибки</h2>
-    <Kanban groups={TEST_KANBAN} />
-  </Container>
-)
+  componentDidMount () {
+    const { firebase } = this.props
 
-export default Home
+    this.setState({ loading: true })
+
+    firebase.bugs().on('value', snapshot => {
+      const bugsObject = snapshot.val()
+
+      const bugsList = bugsObject
+        ? Object.keys(bugsObject).map(key => ({
+          ...bugsObject[key],
+          uid: key }))
+        : []
+
+      const bugGroups = {}
+
+      Object.keys(Bug.STATUS_STATES).forEach(statusKey => {
+        bugGroups[statusKey] = {
+          groupName: Bug.STATUS_STATES[statusKey].groupName,
+          groupId: statusKey,
+          cards: bugsList.filter(bug => bug.statusId.toString() === statusKey)
+        }
+      })
+
+      this.setState({
+        bugGroups,
+        loading: false
+      })
+    })
+  }
+
+  componentWillUnmount () {
+    const { firebase } = this.props
+
+    firebase.bugs().off()
+  }
+
+  render () {
+    const { bugGroups, loading } = this.state
+    const groupsOrder = [0, 1, 2, 3]
+
+    return (
+      <Container>
+        <h2>Ошибки</h2>
+        { !loading ? <Board groups={bugGroups} groupsOrder={groupsOrder} /> : <Loader /> }
+      </Container>
+    )
+  }
+}
+
+const condition = authUser => !!authUser
+
+export default withAuthorization(condition)(Home)

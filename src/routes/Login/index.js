@@ -1,7 +1,10 @@
 import React, { Component } from 'react'
-import { Redirect } from 'react-router-dom'
-import { fakeAuth } from '../../App'
-import './component_style.css'
+import SignUp from './SignUp'
+import SignIn from './SignIn'
+import { Redirect, withRouter } from 'react-router-dom'
+import { withFirebase } from '../../components/Firebase'
+
+import './component_style.sass'
 
 class Login extends Component {
   state = {
@@ -21,12 +24,6 @@ class Login extends Component {
     this.setState({
       isLoginOpen: false,
       isRegisterOpen: true
-    })
-  }
-
-  login = () => {
-    fakeAuth.authenticate(() => {
-      this.setState({ redirectToReferrer: true })
     })
   }
 
@@ -53,152 +50,12 @@ class Login extends Component {
               Регистрация
             </div>
           </div>
-          { this.state.isLoginOpen && <LoginBox login={this.login} /> }
-          { this.state.isRegisterOpen && <RegisterBox login={this.login} /> }
+          { this.state.isLoginOpen && <SignIn firebase={this.props.firebase} history={this.props.history} /> }
+          { this.state.isRegisterOpen && <SignUp firebase={this.props.firebase} history={this.props.history} />}
         </div>
       </div>
     )
   }
 }
 
-class LoginBox extends Component {
-  state = {
-    model: {
-      username: '',
-      password: ''
-    },
-    isValid: false
-  }
-
-  onChange = (e) => {
-    this.setState({
-      model: {
-        ...this.state.model, 
-        [e.target.name]: e.target.value
-      }
-    })
-
-    this.validate()
-  }
-
-  login = () => {
-    this.props.login()
-  }
-
-  validate = () => {
-    const { model } = this.state
-    const isValid = model.username && model.password
-
-    this.setState({
-      isValid
-    })
-  }
-
-  render () {
-    const { model, isValid } = this.state
-
-    return (
-      <div className='inner-container'>
-
-        <div className='box'>
-
-          <div className='input-group'>
-            <label htmlFor='username'>Имя пользователя</label>
-            <input
-              type='text'
-              name='username'
-              value={model.username}
-              className='login-input'
-              placeholder='Имя пользователя'
-              onChange={(e) => this.onChange(e)}
-            />
-          </div>
-
-          <div className='input-group'>
-            <label htmlFor='password'>Пароль</label>
-            <input
-              type='password'
-              name='password'
-              value={model.password}
-              className='login-input'
-              placeholder='Пароль'
-              onChange={(e) => this.onChange(e)}
-            />
-          </div>
-
-          <button
-            type='button'
-            className='login-btn'
-            disabled={!isValid}
-            onClick={() => this.login()}
-          >
-            Войти
-          </button>
-
-        </div>
-
-      </div>
-    )
-  }
-}
-
-class RegisterBox extends Component {
-  state = {
-    username: '',
-    password: ''
-  }
-
-  onChange = (e) => {
-    this.setState({
-      [e.target.name]: e.target.value
-    })
-  }
-
-  register = () => {
-    this.props.login()
-  }
-
-  render () {
-    return (
-      <div className='inner-container'>
-
-        <div className='box'>
-
-          <div className='input-group'>
-            <label htmlFor='username'>Имя пользователя</label>
-            <input
-              type='text'
-              name='username'
-              className='login-input'
-              placeholder='Имя пользователя'
-              onChange={(e) => this.onChange(e)}
-            />
-          </div>
-
-          <div className='input-group'>
-            <label htmlFor='password'>Пароль</label>
-            <input
-              type='password'
-              name='password'
-              className='login-input'
-              placeholder='Пароль'
-              onChange={(e) => this.onChange(e)}
-            />
-          </div>
-
-          <button
-            type='button'
-            className='login-btn'
-            onClick={() => this.register()}
-          >
-            Зарегистрироваться
-          </button>
-
-        </div>
-
-      </div>
-    )
-  }
-}
-
-export default Login
+export default withRouter(withFirebase(Login))

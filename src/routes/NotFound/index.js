@@ -1,4 +1,5 @@
 import React from 'react'
+import { withAuthorization } from '../../components/Session'
 
 const NotFound = () => (
   <div>
@@ -6,4 +7,6 @@ const NotFound = () => (
   </div>
 )
 
-export default NotFound
+const condition = authUser => !!authUser
+
+export default withAuthorization(condition)(NotFound)
